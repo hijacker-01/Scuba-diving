@@ -28,7 +28,7 @@ export default function RippleCanvas() {
   const BASE_OPACITY = 0.65;
   const ECHO_OPACITY = 0.22;
   const THROTTLE_MS = 180;
-  const MIN_MOVE_PX = 60;
+  const MIN_MOVE_PX = 120;
 
   const spawnRipple = useCallback((x: number, y: number) => {
     const now = Date.now();
