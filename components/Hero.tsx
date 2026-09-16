@@ -1,37 +1,117 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useEffect, useState } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { EffectComposer, DepthOfField } from '@react-three/postprocessing';
+import { VideoTexture } from 'three';
+import * as THREE from 'three';
 import RippleCanvas from '@/components/RippleCanvas';
 
-export default function Hero() {
+function VideoPlane() {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const texRef = useRef<VideoTexture | null>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.playbackRate = 0.4;
+    video.play().catch(() => {});
+    const tex = new VideoTexture(video);
+    tex.minFilter = THREE.LinearFilter;
+    tex.magFilter = THREE.LinearFilter;
+    texRef.current = tex;
+    return () => { tex.dispose(); };
+  }, []);
 
   return (
-    <section id="home" className="hero" style={{ position: 'relative', overflow: 'hidden' }}>
-      <div className="hero-bg" style={{
-        backgroundImage: "url('/images/hero1.jpg')",
+    <>
+      <video ref={videoRef} src="/videos/hero-video.mp4" autoPlay loop muted playsInline style={{ display: 'none' }} />
+      <mesh position={[0, 0, -6]}>
+        <planeGeometry args={[18, 10.125]} />
+        <meshBasicMaterial map={texRef.current} toneMapped={false} />
+      </mesh>
+    </>
+  );
+}
+
+function AnimatedFog() {
+  const fogColorRef = useRef<THREE.Color>(new THREE.Color('#00c3ff'));
+
+  useFrame(({ clock }) => {
+    const t = clock.elapsedTime;
+    const duration = 30;
+    const progress = (t % duration) / duration;
+    const color = THREE.ColorUtils.lerpColors(
+      new THREE.Color('#00c3ff'),
+      new THREE.Color('#0a2540'),
+      progress
+    );
+    fogColorRef.current.copy(color);
+  });
+
+  return null;
+}
+
+function DoFEffect() {
+  const dofRef = useRef<any>(null);
+
+  useFrame(({ clock }) => {
+    const t = clock.elapsedTime;
+    const duration = 30;
+    const progress = (t % duration) / duration;
+    if (dofRef.current) {
+      dofRef.current.focusDistance = THREE.MathUtils.lerp(1.5, 0.1, progress);
+      dofRef.current.bokehScale = THREE.MathUtils.lerp(2.5, 0.05, progress);
+    }
+  });
+
+  return (
+    <DepthOfField
+      ref={dofRef}
+      focusDistance={1.5}
+      focalLength={0.5}
+      bokehScale={2.5}
+      height={720}
+      width={1280}
+    />
+  );
+}
+
+function Scene() {
+  return (
+    <>
+      <fog attach="fog" color="#00c3ff" near={1} far={25} />
+      <ambientLight intensity={0.6} />
+      <VideoPlane />
+      <EffectComposer>
+        <DoFEffect />
+      </EffectComposer>
+    </>
+  );
+}
+
+export default function Hero() {
+  const [ready, setReady] = useState(false);
+
+  return (
+    <section id="home" className="hero" style={{ position: 'relative', overflow: 'hidden', height: '100vh' }}>
+      <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0 }}>
+        <Canvas
+          camera={{ position: [0, 0, 5], fov: 60 }}
+          gl={{ alpha: true, antialias: true }}
+          style={{ width: '100%', height: '100%' }}
+          onCreated={() => setReady(true)}
+        >
+          <Scene />
+        </Canvas>
+      </div>
+      <div style={{
+        position: 'absolute',
+        top: 0, left: 0, right: 0, bottom: 0,
+        background: 'linear-gradient(180deg, rgba(10,37,64,0.4) 0%, rgba(0,80,147,0.3) 40%, rgba(10,37,64,0.7) 100%)',
+        zIndex: 1,
       }} />
-      <video
-        ref={videoRef}
-        className="hero-video"
-        src="/videos/hero-video.mp4"
-        autoPlay
-        loop
-        muted
-        playsInline
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          objectFit: 'cover',
-          opacity: 0.3,
-          zIndex: 0,
-        }}
-      />
-      <div className="hero-video-overlay" />
-      <div className="hero-content">
+      <div className="hero-content" style={{ position: 'relative', zIndex: 2 }}>
         <span className="hero-badge">PADI 5-Star Dive Center</span>
         <h1 className="hero-title">Discover the Underwater Paradise</h1>
         <p className="hero-subtitle">
