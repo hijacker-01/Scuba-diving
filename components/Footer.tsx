@@ -26,8 +26,8 @@ export default function Footer() {
       <div className="container">
         <div className="footer-grid">
           <div className="footer-brand">
-            <Link href="#home" className="navbar-logo" style={{ fontSize: '1.3rem' }}>
-              {logoSvg}
+            <Link href="#home" className="navbar-logo" style={{ fontSize: '1.3rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <img src="/images/club-logo.jpg" alt="Havelock Dive Club" style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover' }} />
               <span>Havelock Dive Club</span>
             </Link>
             <p>Your premier destination for scuba diving in the Andaman Islands. Join us for unforgettable underwater experiences.</p>
