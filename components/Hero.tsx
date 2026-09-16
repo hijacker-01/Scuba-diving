@@ -80,8 +80,6 @@ function Scene() {
 }
 
 export default function Hero() {
-  const [ready, setReady] = useState(false);
-
   return (
     <section id="home" className="hero" style={{ position: 'relative', overflow: 'hidden', height: '100vh' }}>
       <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0 }}>
@@ -89,7 +87,6 @@ export default function Hero() {
           camera={{ position: [0, 0, 5], fov: 60 }}
           gl={{ alpha: true, antialias: true }}
           style={{ width: '100%', height: '100%' }}
-          onCreated={() => setReady(true)}
         >
           <Scene />
         </Canvas>
