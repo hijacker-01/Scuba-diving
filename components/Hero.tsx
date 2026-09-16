@@ -1,21 +1,18 @@
 'use client';
 
-import React, { useRef } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { shaderMaterial, useVideoTexture } from '@react-three/drei';
+import { useRef, useEffect } from 'react';
+import { Canvas, extend, useFrame } from '@react-three/fiber';
+import { useVideoTexture, shaderMaterial } from '@react-three/drei';
 import * as THREE from 'three';
-import { extend } from '@react-three/fiber';
 import RippleCanvas from '@/components/RippleCanvas';
 
-const WaterRippleMaterial = shaderMaterial(
+const RippleShaderMaterial = shaderMaterial(
   {
     uTime: 0,
-    uTexture: null,
-    uMouse: new THREE.Vector2(0.5, 0.5),
-    uRippleIntensity: 0.0,
-    uWaveSpeed: 6.0,
-    uWaveScale: 40.0,
-    uDecay: 4.0,
+    uVideoTexture: null,
+    uMouse: new THREE.Vector2(-1.0, -1.0),
+    uDropRadius: 0.25,
+    uStrength: 0.035,
   },
   `
     varying vec2 vUv;
@@ -26,85 +23,80 @@ const WaterRippleMaterial = shaderMaterial(
   `,
   `
     uniform float uTime;
-    uniform sampler2D uTexture;
+    uniform sampler2D uVideoTexture;
     uniform vec2 uMouse;
-    uniform float uRippleIntensity;
-    uniform float uWaveSpeed;
-    uniform float uWaveScale;
-    uniform float uDecay;
+    uniform float uDropRadius;
+    uniform float uStrength;
     varying vec2 vUv;
 
     void main() {
       vec2 uv = vUv;
-
       float dist = distance(uv, uMouse);
-
-      float wave = sin(dist * uWaveScale - uTime * uWaveSpeed) * 0.02;
-
-      float decay = exp(-dist * uDecay);
-
-      vec2 distortedUV = uv + (wave * decay * uRippleIntensity);
-
-      vec4 texColor = texture2D(uTexture, distortedUV);
-
-      gl_FragColor = texColor;
+      float wave = 0.0;
+      if (dist < uDropRadius) {
+        float factor = smoothstep(uDropRadius, 0.0, dist);
+        wave = sin(dist * 60.0 - uTime * 10.0) * uStrength * factor;
+      }
+      vec2 distortedUV = uv + wave;
+      vec4 color = texture2D(uVideoTexture, distortedUV);
+      gl_FragColor = color;
     }
   `
 );
 
-extend({ WaterRippleMaterial });
+extend({ RippleShaderMaterial });
 
-function RippleMesh() {
-  const meshRef = useRef<THREE.Mesh>(null);
-  const texture = useVideoTexture('/videos/hero-video.mp4');
+function RippleCanvasPlane() {
+  const materialRef = useRef<any>(null);
+  const videoTexture = useVideoTexture('/videos/hero-video.mp4', {
+    muted: true,
+    loop: true,
+    autoPlay: true,
+    playsInline: true,
+  });
+  videoTexture.minFilter = THREE.LinearFilter;
+  videoTexture.magFilter = THREE.LinearFilter;
+  videoTexture.playbackRate = 0.4;
+
+  useEffect(() => {
+    const handlePointerMove = (e: PointerEvent) => {
+      if (materialRef.current) {
+        materialRef.current.uMouse.set(
+          e.clientX / window.innerWidth,
+          1.0 - e.clientY / window.innerHeight
+        );
+      }
+    };
+    window.addEventListener('pointermove', handlePointerMove);
+    return () => window.removeEventListener('pointermove', handlePointerMove);
+  }, []);
 
   useFrame((state) => {
-    if (meshRef.current) {
-      const mat = meshRef.current.material as any;
-      mat.uTime = state.clock.getElapsedTime();
-      mat.uMouse.set(
-        (state.pointer.x + 1.0) / 2.0,
-        (state.pointer.y + 1.0) / 2.0
-      );
+    if (materialRef.current) {
+      materialRef.current.uTime = state.clock.getElapsedTime();
     }
   });
 
   return (
-    <mesh ref={meshRef} position={[0, 0, 0]}>
-      <planeGeometry args={[16, 9, 32, 32]} />
-      <waterRippleMaterial
-        uTexture={texture}
-        uRippleIntensity={0.8}
-        uWaveSpeed={6.0}
-        uWaveScale={40.0}
-        uDecay={4.0}
-        toneMapped={false}
-      />
+    <mesh>
+      <planeGeometry args={[16, 9, 1, 1]} />
+      <rippleShaderMaterial ref={materialRef} uVideoTexture={videoTexture} />
     </mesh>
-  );
-}
-
-function HeroScene() {
-  return (
-    <>
-      <color attach="background" args={['#0a2540']} />
-      <ambientLight intensity={0.6} />
-      <RippleMesh />
-      <fog attach="fog" color="#0a2540" near={1} far={25} />
-    </>
   );
 }
 
 export default function Hero() {
   return (
-    <section id="home" className="hero" style={{ position: 'relative', overflow: 'hidden', height: '100vh' }}>
+    <section id="home" className="hero" style={{ position: 'relative', overflow: 'hidden' }}>
       <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0 }}>
         <Canvas
           camera={{ position: [0, 0, 5], fov: 60 }}
           gl={{ alpha: true, antialias: true }}
+          dpr={[1, 2]}
           style={{ width: '100%', height: '100%' }}
         >
-          <HeroScene />
+          <color attach="background" args={['#0a2540']} />
+          <RippleCanvasPlane />
         </Canvas>
       </div>
       <div style={{

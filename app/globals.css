@@ -210,30 +210,6 @@ img {
   padding-top: 70px;
 }
 
-.hero-bg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: url('/images/hero1.jpg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  opacity: 0.25;
-  z-index: 0;
-}
-
-.hero-video-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, rgba(10, 37, 64, 0.6) 0%, rgba(0, 80, 147, 0.4) 50%, rgba(0, 195, 255, 0.3) 100%);
-  z-index: 1;
-}
-
 .hero::before {
   content: '';
   position: absolute;
@@ -304,11 +280,7 @@ img {
   height: 50%;
   background: linear-gradient(to top, #ffffff, transparent);
   border-radius: 50% 50% 0 0 / 100px 100px 0 0;
-  z-index: 3;
-}
-
-.hero-video {
-  z-index: 0;
+  z-index: 2;
 }
 
 /* ===== WAVE ===== */
