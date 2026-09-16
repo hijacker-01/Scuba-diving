@@ -4,7 +4,7 @@ export default function Gallery() {
     { src: '/images/download.jpg', title: 'Swimming with the Fishes', location: 'Neil Island' },
     { src: '/images/gallery3.jpg', title: 'Dive Point', location: 'South Bay' },
     { src: '/images/gallery4.jpg', title: 'Underwater World', location: 'Lighthouse' },
-    { src: '/images/gallery5.jpg', title: 'Marine Life', location: 'Mac Point' },
+    { src: '/images/gallery5.jpg', title: 'Rescue Diver', location: 'Mac Point' },
     { src: '/images/gallery6.jpg', title: 'Sunset Dive', location: 'Bharatpur' },
   ];
 

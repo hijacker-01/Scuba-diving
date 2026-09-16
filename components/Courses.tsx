@@ -15,7 +15,7 @@ export default function Courses() {
       duration: '2-3 days',
     },
     {
-      image: '/images/gallery1.jpeg',
+      image: '/images/gallery5.jpg',
       badge: 'Professional',
       title: 'Rescue Diver',
       description: 'Learn to prevent and manage problems in the water. Build confidence and readiness to assist fellow divers.',
