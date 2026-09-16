@@ -1,0 +1,145 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700&display=swap');
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: #ebfbff;
+  color: #0a2540;
+  overflow-x: hidden;
+  letter-spacing: -0.006em;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #ebfbff; }
+::-webkit-scrollbar-thumb { background: #00c6ac; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #005093; }
+
+::selection { background: rgba(0, 198, 172, 0.3); color: #0a2540; }
+
+/* Colors matching orcadiveclub.in */
+:root {
+  --primary: #00c6ac;
+  --primary-hover: #005093;
+  --primary-dark: #0a2540;
+  --bg-light: #ebfbff;
+  --text-dark: #0a2540;
+  --text-gray: #425466;
+  --shadow: 0 8px 40px -5px rgba(9, 31, 67, 0.1);
+  --shadow-lg: 0 20px 30px rgba(172, 172, 172, 0.4);
+}
+
+/* Glassmorphism */
+.glass {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.glass-dark {
+  background: rgba(10, 37, 64, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Gradient Text */
+.gradient-text {
+  background: linear-gradient(135deg, #00c6ac, #005093);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Buttons - matching orcadiveclub.in */
+.btn-primary {
+  background: #0a2540;
+  color: #fff;
+  padding: 0.7em 1.764em;
+  border-radius: 20px;
+  font-weight: 500;
+  text-align: center;
+  transition: all .45s;
+  box-shadow: 0 20px 30px rgba(172, 172, 172, 0.4);
+  border: none;
+  display: inline-block;
+  text-decoration: none;
+  cursor: pointer;
+  font-size: 15px;
+  letter-spacing: -0.006em;
+}
+.btn-primary:hover {
+  background: #00c6ac;
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+.btn-outline {
+  background: transparent;
+  color: #00c6ac;
+  padding: 0.7em 1.764em;
+  border-radius: 20px;
+  font-weight: 500;
+  border: 2px solid #00c6ac;
+  transition: all .45s;
+  display: inline-block;
+  text-decoration: none;
+  cursor: pointer;
+  font-size: 15px;
+}
+.btn-outline:hover {
+  background: #00c6ac;
+  color: #fff;
+}
+
+/* Section Padding */
+.section-padding { padding-top: 8rem; padding-bottom: 8rem; }
+@media (max-width: 768px) { .section-padding { padding-top: 4rem; padding-bottom: 4rem; } }
+
+/* Wave SVG */
+.wave-container { position: relative; margin-top: -1px; }
+.wave-container svg { width: 100%; display: block; }
+
+/* Focus */
+*:focus-visible { outline: 2px solid #00c6ac; outline-offset: 2px; border-radius: 4px; }
+
+/* Loader */
+.loader-spinner {
+  width: 50px; height: 50px; border: 3px solid rgba(0, 198, 172, 0.2);
+  border-top: 3px solid #00c6ac; border-radius: 50%; animation: spin 1s linear infinite;
+}
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* WhatsApp Button Pulse */
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 198, 172, 0.4); }
+  50% { box-shadow: 0 0 0 15px rgba(0, 198, 172, 0); }
+}
+
+/* Image */
+img { max-width: 100%; height: auto; }
+
+/* Heading styles matching orcadiveclub.in */
+h1, h2, h3, h4, h5, h6 {
+  line-height: 1.5;
+  letter-spacing: -0.022em;
+  color: var(--text-dark);
+}
+
+/* Card Hover */
+.card-hover { transition: all .3s ease; }
+.card-hover:hover { transform: translateY(-8px); box-shadow: var(--shadow); }
+
+/* Mobile */
+@media (max-width: 768px) {
+  h1 { font-size: 36px !important; line-height: 1.4 !important; }
+  h2 { font-size: 36px !important; }
+}
