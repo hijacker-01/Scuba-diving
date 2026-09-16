@@ -8,8 +8,8 @@ interface Ripple {
   radius: number;
   maxRadius: number;
   opacity: number;
-  echoOpacity: number;
   echoRadius: number;
+  echoOpacity: number;
   active: boolean;
 }
 
@@ -18,7 +18,10 @@ export default function RippleCanvas() {
   const animRef = useRef<number>(0);
   const ripplesRef = useRef<Ripple[]>([]);
   const lastSpawnRef = useRef<{ x: number; y: number; time: number } | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const widthRef = useRef(0);
+  const heightRef = useRef(0);
+  const dprRef = useRef(1);
+  const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
 
   const MAX_RADIUS = 70;
   const INITIAL_RADIUS = 4;
@@ -41,13 +44,12 @@ export default function RippleCanvas() {
     lastSpawnRef.current = { x, y, time: now };
 
     ripplesRef.current.push({
-      x,
-      y,
+      x, y,
       radius: INITIAL_RADIUS,
       maxRadius: MAX_RADIUS,
       opacity: BASE_OPACITY,
-      echoOpacity: ECHO_OPACITY,
       echoRadius: INITIAL_RADIUS * 1.5,
+      echoOpacity: ECHO_OPACITY,
       active: true,
     });
   }, []);
@@ -57,74 +59,69 @@ export default function RippleCanvas() {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
+    ctxRef.current = ctx;
 
-    const container = canvas.parentElement;
-    if (!container) return;
+    const hero = canvas.parentElement;
+    if (!hero) return;
 
     const dpr = window.devicePixelRatio || 1;
-    let width = container.offsetWidth;
-    let height = container.offsetHeight;
+    dprRef.current = dpr;
 
-    const resizeCanvas = () => {
-      width = container.offsetWidth;
-      height = container.offsetHeight;
-      canvas.width = width * dpr;
-      canvas.height = height * dpr;
-      canvas.style.width = `${width}px`;
-      canvas.style.height = `${height}px`;
-      ctx.scale(dpr, dpr);
+    const resize = () => {
+      const rect = hero.getBoundingClientRect();
+      widthRef.current = rect.width;
+      heightRef.current = rect.height;
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      canvas.style.width = `${rect.width}px`;
+      canvas.style.height = `${rect.height}px`;
+      // Reset transform to avoid accumulation
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
 
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
+    resize();
+    window.addEventListener('resize', resize);
 
     const handlePointerMove = (e: PointerEvent) => {
-      const rect = container.getBoundingClientRect();
+      const rect = hero.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
       spawnRipple(x, y);
     };
 
-    container.addEventListener('pointermove', handlePointerMove, { passive: true });
+    hero.addEventListener('pointermove', handlePointerMove, { passive: true });
 
     const animate = () => {
-      ctx.clearRect(0, 0, width, height);
+      ctx.clearRect(0, 0, widthRef.current, heightRef.current);
 
       const alive: Ripple[] = [];
-      for (let i = 0; i < ripplesRef.current.length; i++) {
-        const r = ripplesRef.current[i];
-        if (!r.active) continue;
+      const ripples = ripplesRef.current;
 
-        const speed = 1.2;
-        const easeFactor = 0.98;
+      for (let i = 0; i < ripples.length; i++) {
+        const r = ripples[i];
 
-        // Update primary ring
-        r.radius += speed;
-        r.opacity = BASE_OPACITY * (1 - r.radius / r.maxRadius);
+        r.radius += 1.2;
+        r.opacity = BASE_OPACITY * Math.max(0, 1 - r.radius / r.maxRadius);
 
-        // Update echo ring (lags behind)
-        r.echoRadius += speed * 0.7;
-        r.echoOpacity = ECHO_OPACITY * (1 - r.echoRadius / r.maxRadius);
+        r.echoRadius += 0.84;
+        r.echoOpacity = ECHO_OPACITY * Math.max(0, 1 - r.echoRadius / r.maxRadius);
 
-        // Draw echo ring (secondary, fainter)
         if (r.echoRadius < r.maxRadius && r.echoOpacity > 0.005) {
           ctx.beginPath();
-          ctx.arc(r.x, r.y, Math.max(0.1, r.echoRadius), 0, Math.PI * 2);
-          ctx.strokeStyle = `rgba(255, 255, 255, ${r.echoOpacity})`;
+          ctx.arc(r.x, r.y, r.echoRadius, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(255,255,255,${r.echoOpacity})`;
           ctx.lineWidth = 1;
           ctx.stroke();
         }
 
-        // Draw primary ring
         if (r.radius < r.maxRadius && r.opacity > 0.005) {
           ctx.beginPath();
-          ctx.arc(r.x, r.y, Math.max(0.1, r.radius), 0, Math.PI * 2);
-          ctx.strokeStyle = `rgba(255, 255, 255, ${r.opacity})`;
+          ctx.arc(r.x, r.y, r.radius, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(255,255,255,${r.opacity})`;
           ctx.lineWidth = 1.5;
           ctx.stroke();
         }
 
-        // Keep alive if not fully faded
         if (r.radius < r.maxRadius) {
           alive.push(r);
         }
@@ -137,26 +134,25 @@ export default function RippleCanvas() {
     animRef.current = requestAnimationFrame(animate);
 
     return () => {
-      window.removeEventListener('resize', resizeCanvas);
-      container.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('resize', resize);
+      hero.removeEventListener('pointermove', handlePointerMove);
       cancelAnimationFrame(animRef.current);
     };
   }, [spawnRipple]);
 
   return (
-    <div ref={containerRef} style={{ position: 'relative', width: '100%', height: '100%' }}>
-      <canvas
-        ref={canvasRef}
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          pointerEvents: 'none',
-          zIndex: 10,
-        }}
-      />
-    </div>
+    <canvas
+      ref={canvasRef}
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        pointerEvents: 'none',
+        zIndex: 10,
+        display: 'block',
+      }}
+    />
   );
 }
