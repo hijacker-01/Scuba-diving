@@ -23,12 +23,12 @@ export default function RippleCanvas() {
   const dprRef = useRef(1);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
 
-  const MAX_RADIUS = 140;
+  const MAX_RADIUS = 160;
   const INITIAL_RADIUS = 8;
-  const BASE_OPACITY = 0.55;
-  const ECHO_OPACITY = 0.2;
-  const THROTTLE_MS = 130;
-  const MIN_MOVE_PX = 25;
+  const BASE_OPACITY = 0.65;
+  const ECHO_OPACITY = 0.22;
+  const THROTTLE_MS = 180;
+  const MIN_MOVE_PX = 60;
 
   const spawnRipple = useCallback((x: number, y: number) => {
     const now = Date.now();
@@ -48,7 +48,7 @@ export default function RippleCanvas() {
       radius: INITIAL_RADIUS,
       maxRadius: MAX_RADIUS,
       opacity: BASE_OPACITY,
-      echoRadius: INITIAL_RADIUS * 2,
+      echoRadius: INITIAL_RADIUS * 2.5,
       echoOpacity: ECHO_OPACITY,
       active: true,
     });
@@ -100,17 +100,17 @@ export default function RippleCanvas() {
       for (let i = 0; i < ripples.length; i++) {
         const r = ripples[i];
 
-        r.radius += 0.55;
+        r.radius += 0.3;
         r.opacity = BASE_OPACITY * Math.max(0, 1 - r.radius / r.maxRadius);
 
-        r.echoRadius += 0.38;
+        r.echoRadius += 0.2;
         r.echoOpacity = ECHO_OPACITY * Math.max(0, 1 - r.echoRadius / r.maxRadius);
 
         if (r.echoRadius < r.maxRadius && r.echoOpacity > 0.005) {
           ctx.beginPath();
           ctx.arc(r.x, r.y, r.echoRadius, 0, Math.PI * 2);
           ctx.strokeStyle = `rgba(255,255,255,${r.echoOpacity})`;
-          ctx.lineWidth = 1;
+          ctx.lineWidth = 1.5;
           ctx.stroke();
         }
 
@@ -118,7 +118,7 @@ export default function RippleCanvas() {
           ctx.beginPath();
           ctx.arc(r.x, r.y, r.radius, 0, Math.PI * 2);
           ctx.strokeStyle = `rgba(255,255,255,${r.opacity})`;
-          ctx.lineWidth = 2.5;
+          ctx.lineWidth = 3;
           ctx.stroke();
         }
 
