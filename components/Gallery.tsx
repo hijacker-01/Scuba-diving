@@ -6,6 +6,7 @@ export default function Gallery() {
     { src: '/images/gallery4.jpg', title: 'Underwater World', location: 'Lighthouse' },
     { src: '/images/gallery5.jpg', title: 'Marine Life', location: 'Mac Point' },
     { src: '/images/gallery6.jpg', title: 'Sunset Dive', location: 'Bharatpur' },
+    { src: '/images/ambition.jpg', title: 'Sunrise Deep Blue', location: 'Sunrise Point' },
   ];
 
   return (
