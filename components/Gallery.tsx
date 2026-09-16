@@ -1,7 +1,7 @@
 export default function Gallery() {
   const images = [
     { src: '/images/gallery1.jpg', title: 'Coral Reef', location: 'Havelock Island' },
-    { src: '/images/gallery2.jpg', title: 'Tropical Fish', location: 'Neil Island' },
+    { src: '/images/download.jpg', title: 'Swimming with the Fishes', location: 'Neil Island' },
     { src: '/images/gallery3.jpg', title: 'Dive Point', location: 'South Bay' },
     { src: '/images/gallery4.jpg', title: 'Underwater World', location: 'Lighthouse' },
     { src: '/images/gallery5.jpg', title: 'Marine Life', location: 'Mac Point' },
