@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useEffect } from 'react';
+import { useRef, useState, useCallback, useEffect } from 'react';
 import { Canvas, extend, useFrame } from '@react-three/fiber';
 import { useVideoTexture, shaderMaterial } from '@react-three/drei';
 import * as THREE from 'three';
@@ -56,6 +56,8 @@ const ExpandingRippleShader = shaderMaterial(
 extend({ ExpandingRippleShader });
 
 function ExpandingRipplePlane() {
+  const [mouse, setMouse] = useState<THREE.Vector2>(new THREE.Vector2(0.5, 0.5));
+  const [rippleStart, setRippleStart] = useState(0);
   const materialRef = useRef<any>(null);
   const videoTexture = useVideoTexture('/videos/hero-video.mp4', {
     muted: true,
@@ -67,30 +69,34 @@ function ExpandingRipplePlane() {
   videoTexture.magFilter = THREE.LinearFilter;
   videoTexture.playbackRate = 0.4;
 
+  const handlePointerMove = useCallback((e: PointerEvent) => {
+    setMouse(new THREE.Vector2(
+      e.clientX / window.innerWidth,
+      1.0 - e.clientY / window.innerHeight
+    ));
+    setRippleStart(performance.now() * 0.001);
+  }, []);
+
   useEffect(() => {
-    const handlePointerMove = (e: PointerEvent) => {
-      if (materialRef.current) {
-        materialRef.current.uMouse.set(
-          e.clientX / window.innerWidth,
-          1.0 - e.clientY / window.innerHeight
-        );
-        materialRef.current.uRippleStartTime = performance.now() * 0.001;
-      }
-    };
     window.addEventListener('pointermove', handlePointerMove);
     return () => window.removeEventListener('pointermove', handlePointerMove);
-  }, []);
+  }, [handlePointerMove]);
 
   useFrame((state) => {
     if (materialRef.current) {
       materialRef.current.uTime = state.clock.getElapsedTime();
+      materialRef.current.uMouse = mouse;
+      materialRef.current.uRippleStartTime = rippleStart;
     }
   });
 
   return (
     <mesh>
       <planeGeometry args={[16, 9, 1, 1]} />
-      <expandingRippleShader ref={materialRef} uVideoTexture={videoTexture} />
+      <expandingRippleShader
+        ref={materialRef}
+        uVideoTexture={videoTexture}
+      />
     </mesh>
   );
 }
