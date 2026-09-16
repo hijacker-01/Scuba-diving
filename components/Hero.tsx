@@ -41,11 +41,8 @@ function AnimatedFog() {
     const t = clock.elapsedTime;
     const duration = 30;
     const progress = (t % duration) / duration;
-    const color = THREE.ColorUtils.lerpColors(
-      new THREE.Color('#00c3ff'),
-      new THREE.Color('#0a2540'),
-      progress
-    );
+    const color = new THREE.Color()
+      .lerpColors(new THREE.Color('#00c3ff'), new THREE.Color('#0a2540'), progress);
     fogColorRef.current.copy(color);
   });
 
