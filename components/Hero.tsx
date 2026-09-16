@@ -1,36 +1,28 @@
 'use client';
 
-import { useRef, useEffect, useState } from 'react';
+import { useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { EffectComposer, DepthOfField } from '@react-three/postprocessing';
-import { VideoTexture } from 'three';
+import { useVideoTexture } from '@react-three/drei';
 import * as THREE from 'three';
 import RippleCanvas from '@/components/RippleCanvas';
 
 function VideoPlane() {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const texRef = useRef<VideoTexture | null>(null);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    video.playbackRate = 0.4;
-    video.play().catch(() => {});
-    const tex = new VideoTexture(video);
-    tex.minFilter = THREE.LinearFilter;
-    tex.magFilter = THREE.LinearFilter;
-    texRef.current = tex;
-    return () => { tex.dispose(); };
-  }, []);
+  const texture = useVideoTexture('/videos/hero-video.mp4', {
+    muted: true,
+    loop: true,
+    autoPlay: true,
+    playsInline: true,
+  });
+  texture.minFilter = THREE.LinearFilter;
+  texture.magFilter = THREE.LinearFilter;
+  texture.playbackRate = 0.4;
 
   return (
-    <>
-      <video ref={videoRef} src="/videos/hero-video.mp4" autoPlay loop muted playsInline style={{ display: 'none' }} />
-      <mesh position={[0, 0, -6]}>
-        <planeGeometry args={[18, 10.125]} />
-        <meshBasicMaterial map={texRef.current} toneMapped={false} />
-      </mesh>
-    </>
+    <mesh position={[0, 0, -6]}>
+      <planeGeometry args={[18, 10.125]} />
+      <meshBasicMaterial map={texture} toneMapped={false} />
+    </mesh>
   );
 }
 
