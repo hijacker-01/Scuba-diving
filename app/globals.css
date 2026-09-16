@@ -961,3 +961,26 @@ img {
     padding: 60px 0;
   }
 }
+
+/* ===== RIPPLE CANVAS ===== */
+.ripple-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+  overflow: hidden;
+}
+
+.ripple-container canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.hero {
+  position: relative;
+  overflow: hidden;
+}
