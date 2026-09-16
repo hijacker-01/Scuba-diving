@@ -5,14 +5,14 @@ import { Canvas, extend, useFrame } from '@react-three/fiber';
 import { useVideoTexture, shaderMaterial } from '@react-three/drei';
 import * as THREE from 'three';
 
-const ExpandingRippleShader = shaderMaterial(
+const FullScreenRippleShader = shaderMaterial(
   {
     uTime: 0,
     uVideoTexture: null,
     uMouse: new THREE.Vector2(0.5, 0.5),
-    uRippleStartTime: 0.0,
-    uMaxRadius: 0.9,
-    uStrength: 0.045,
+    uRippleStartTime: -10.0,
+    uAspect: 16.0 / 9.0,
+    uStrength: 0.05,
   },
   `
     varying vec2 vUv;
@@ -26,38 +26,51 @@ const ExpandingRippleShader = shaderMaterial(
     uniform sampler2D uVideoTexture;
     uniform vec2 uMouse;
     uniform float uRippleStartTime;
-    uniform float uMaxRadius;
+    uniform float uAspect;
     uniform float uStrength;
     varying vec2 vUv;
 
     void main() {
-      vec2 uv = vUv;
-      float dist = distance(uv, uMouse);
+      vec2 st = vUv;
+      st.x *= uAspect;
+
+      vec2 mouse = uMouse;
+      mouse.x *= uAspect;
+
+      float dist = distance(st, mouse);
+
       float elapsed = uTime - uRippleStartTime;
-      float currentRadius = elapsed * 0.7;
+
+      float wavefront = elapsed * 1.8;
+
+      float maxDist = length(vec2(uAspect, 1.0));
+
       float wave = 0.0;
 
-      if (dist < currentRadius && currentRadius < uMaxRadius) {
-        float bandWidth = 0.25;
-        if (dist > currentRadius - bandWidth) {
-          float factor = smoothstep(currentRadius, currentRadius - bandWidth, dist);
-          float fade = max(0.0, 1.0 - (currentRadius / uMaxRadius));
-          wave = sin((dist - currentRadius) * 45.0) * uStrength * factor * fade;
+      if (wavefront > 0.0 && wavefront < maxDist * 1.5) {
+        float ringWidth = 0.35;
+        float innerEdge = wavefront - ringWidth;
+
+        if (dist > innerEdge && dist < wavefront) {
+          float factor = smoothstep(innerEdge, wavefront - (ringWidth * 0.5), dist) *
+                         smoothstep(wavefront, wavefront - (ringWidth * 0.5), dist);
+
+          float lifetimeFade = clamp(1.0 - (elapsed / 2.0), 0.0, 1.0);
+
+          wave = sin((dist - wavefront) * 35.0) * uStrength * factor * lifetimeFade;
         }
       }
 
-      vec2 distortedUV = uv + wave;
+      vec2 distortedUV = vUv + vec2(wave);
       vec4 color = texture2D(uVideoTexture, distortedUV);
       gl_FragColor = color;
     }
   `
 );
 
-extend({ ExpandingRippleShader });
+extend({ FullScreenRippleShader });
 
-function ExpandingRipplePlane() {
-  const [mouse, setMouse] = useState<THREE.Vector2>(new THREE.Vector2(0.5, 0.5));
-  const [rippleStart, setRippleStart] = useState(0);
+function RippleMesh() {
   const materialRef = useRef<any>(null);
   const videoTexture = useVideoTexture('/videos/hero-video.mp4', {
     muted: true,
@@ -65,37 +78,51 @@ function ExpandingRipplePlane() {
     autoPlay: true,
     playsInline: true,
   });
+  const [aspect, setAspect] = useState(window.innerWidth / window.innerHeight);
+
   videoTexture.minFilter = THREE.LinearFilter;
   videoTexture.magFilter = THREE.LinearFilter;
   videoTexture.playbackRate = 0.4;
 
-  const handlePointerMove = useCallback((e: PointerEvent) => {
-    setMouse(new THREE.Vector2(
-      e.clientX / window.innerWidth,
-      1.0 - e.clientY / window.innerHeight
-    ));
-    setRippleStart(performance.now() * 0.001);
+  useEffect(() => {
+    const handleResize = () => {
+      const newAspect = window.innerWidth / window.innerHeight;
+      setAspect(newAspect);
+      if (materialRef.current) {
+        materialRef.current.uAspect = newAspect;
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   useEffect(() => {
-    window.addEventListener('pointermove', handlePointerMove);
-    return () => window.removeEventListener('pointermove', handlePointerMove);
-  }, [handlePointerMove]);
+    const handleInteraction = (e: PointerEvent) => {
+      if (materialRef.current) {
+        materialRef.current.uMouse.set(
+          e.clientX / window.innerWidth,
+          1.0 - e.clientY / window.innerHeight
+        );
+        materialRef.current.uRippleStartTime = performance.now() * 0.001;
+      }
+    };
+    window.addEventListener('pointermove', handleInteraction);
+    return () => window.removeEventListener('pointermove', handleInteraction);
+  }, []);
 
   useFrame((state) => {
     if (materialRef.current) {
       materialRef.current.uTime = state.clock.getElapsedTime();
-      materialRef.current.uMouse = mouse;
-      materialRef.current.uRippleStartTime = rippleStart;
     }
   });
 
   return (
     <mesh>
       <planeGeometry args={[16, 9, 1, 1]} />
-      <expandingRippleShader
+      <fullScreenRippleShader
         ref={materialRef}
         uVideoTexture={videoTexture}
+        uAspect={aspect}
       />
     </mesh>
   );
@@ -112,7 +139,7 @@ export default function Hero() {
           style={{ width: '100%', height: '100%' }}
         >
           <color attach="background" args={['#0a2540']} />
-          <ExpandingRipplePlane />
+          <RippleMesh />
         </Canvas>
       </div>
       <div style={{
