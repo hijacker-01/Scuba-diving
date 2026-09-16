@@ -1,11 +1,11 @@
 export default function Gallery() {
   const images = [
-    { src: '/images/gallery1.jpeg', title: 'Coral Reef', location: 'Havelock Island' },
-    { src: '/images/gallery2.jpeg', title: 'Tropical Fish', location: 'Neil Island' },
-    { src: '/images/gallery3.jpeg', title: 'Dive Point', location: 'South Bay' },
-    { src: '/images/gallery4.jpeg', title: 'Underwater World', location: 'Lighthouse' },
-    { src: '/images/gallery5.jpeg', title: 'Marine Life', location: 'Mac Point' },
-    { src: '/images/gallery6.jpeg', title: 'Sunset Dive', location: 'Bharatpur' },
+    { src: '/images/gallery1.jpg', title: 'Coral Reef', location: 'Havelock Island' },
+    { src: '/images/gallery2.jpg', title: 'Tropical Fish', location: 'Neil Island' },
+    { src: '/images/gallery3.jpg', title: 'Dive Point', location: 'South Bay' },
+    { src: '/images/gallery4.jpg', title: 'Underwater World', location: 'Lighthouse' },
+    { src: '/images/gallery5.jpg', title: 'Marine Life', location: 'Mac Point' },
+    { src: '/images/gallery6.jpg', title: 'Sunset Dive', location: 'Bharatpur' },
   ];
 
   return (

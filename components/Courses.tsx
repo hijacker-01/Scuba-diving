@@ -1,14 +1,14 @@
 export default function Courses() {
   const courses = [
     {
-      image: '/images/activities1.jpeg',
+      image: '/images/activities1.jpg',
       badge: 'Beginner',
       title: 'Open Water Diver',
       description: 'Your first step into the underwater world. Learn essential diving skills and earn your globally recognized certification.',
       duration: '3-4 days',
     },
     {
-      image: '/images/activities2.jpeg',
+      image: '/images/activities2.jpg',
       badge: 'Intermediate',
       title: 'Advanced Open Water',
       description: 'Take your diving to the next level with specialized training in deep diving, navigation, and night diving.',

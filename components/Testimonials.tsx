@@ -1,21 +1,21 @@
 export default function Testimonials() {
   const testimonials = [
     {
-      avatar: '/images/hero1.jpeg',
+      avatar: '/images/hero1.jpg',
       name: 'Sarah Johnson',
       role: 'Open Water Diver',
       text: 'Absolutely incredible experience! The instructors were patient and knowledgeable. The coral reefs were mesmerizing. Highly recommend!',
       rating: 5,
     },
     {
-      avatar: '/images/hero2.jpeg',
+      avatar: '/images/hero1.jpg',
       name: 'Michael Chen',
       role: 'Advanced Diver',
       text: 'Best dive center in the Andamans. Professional equipment, great locations, and an unforgettable underwater adventure.',
       rating: 5,
     },
     {
-      avatar: '/images/hero3.jpeg',
+      avatar: '/images/hero1.jpg',
       name: 'Priya Sharma',
       role: 'Rescue Diver',
       text: 'From my first dive to my rescue certification, the team made every moment safe and exciting. Truly a world-class experience.',

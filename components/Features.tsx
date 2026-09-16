@@ -23,7 +23,7 @@ export default function Features() {
   ];
 
   return (
-    <section id="features" className="features">
+    <section id="features" className="features" style={{ backgroundImage: "url('/images/stats-bg.jpg')" }}>
       <div className="container">
         <div className="section-header">
           <span className="section-badge">Why Choose Us</span>
