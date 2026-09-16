@@ -1,21 +1,12 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
 import './globals.css';
-
-const inter = Inter({ subsets: ['latin'] });
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
+import WhatsAppFab from '@/components/WhatsApp';
 
 export const metadata: Metadata = {
-  title: 'Havelock Dive Club - Professional Scuba Diving in Andaman Islands',
-  description: 'Experience the underwater paradise of Havelock Island. Book your dive adventure with professional PADI certified instructors.',
-  keywords: ['scuba diving', 'Havelock Island', 'Andaman Islands', 'PADI', 'underwater'],
-  authors: [{ name: 'Havelock Dive Club' }],
-  openGraph: {
-    title: 'Havelock Dive Club',
-    description: 'Professional scuba diving in Andaman Islands',
-    type: 'website',
-    url: 'https://havelockdiveclub.com',
-    images: ['/images/og-image.jpg'],
-  },
+  title: 'Havelock Dive Club | Scuba Diving in Andaman',
+  description: 'Discover the underwater paradise of Havelock Island. PADI 5-Star dive center offering scuba diving courses, certifications, and guided dives.',
 };
 
 export default function RootLayout({
@@ -24,11 +15,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} bg-[#ebfbff] text-[#0a2540] antialiased`}>
-        {/* Font Awesome */}
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <html lang="en">
+      <body>
+        <Navbar />
         {children}
+        <Footer />
+        <WhatsAppFab />
       </body>
     </html>
   );

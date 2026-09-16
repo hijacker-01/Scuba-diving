@@ -1,10 +1,13 @@
-const RAZORPAY_KEY_ID = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || '';
-const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || '';
+import Razorpay from 'razorpay';
 
-export const razorpay = {
-  getKeyId: () => RAZORPAY_KEY_ID,
-  getKeySecret: () => RAZORPAY_KEY_SECRET,
-  isConfigured: () => RAZORPAY_KEY_ID.length > 0 && RAZORPAY_KEY_SECRET.length > 0,
-};
+let instance: Razorpay | null = null;
 
-export default razorpay;
+export function getRazorpayInstance(): Razorpay {
+  if (!instance) {
+    instance = new Razorpay({
+      key_id: process.env.RAZZORPAY_KEY_ID || 'rzp_test_placeholder',
+      key_secret: process.env.RAZZORPAY_KEY_SECRET || 'rzp_test_placeholder_secret',
+    });
+  }
+  return instance;
+}

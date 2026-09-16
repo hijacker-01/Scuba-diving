@@ -1,19 +1,7 @@
-export function formatDate(date: string): string {
-  return new Date(date).toLocaleDateString('en-IN', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  });
+export function formatCurrency(amount: number) {
+  return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(amount);
 }
 
-export function formatPrice(price: number): string {
-  return `₹${price.toLocaleString('en-IN')}`;
-}
-
-export function generateId(): string {
-  return Math.random().toString(36).substring(2, 10).toUpperCase();
-}
-
-export function sanitizeInput(str: string): string {
-  return str.replace(/[<>]/g, '').trim();
+export function formatDate(date: Date) {
+  return new Intl.DateTimeFormat('en-IN').format(date);
 }
