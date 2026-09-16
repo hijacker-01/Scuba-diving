@@ -5,13 +5,14 @@ import { Canvas, extend, useFrame } from '@react-three/fiber';
 import { useVideoTexture, shaderMaterial } from '@react-three/drei';
 import * as THREE from 'three';
 
-const RippleShaderMaterial = shaderMaterial(
+const ExpandingRippleShader = shaderMaterial(
   {
     uTime: 0,
     uVideoTexture: null,
-    uMouse: new THREE.Vector2(-1.0, -1.0),
-    uDropRadius: 0.25,
-    uStrength: 0.035,
+    uMouse: new THREE.Vector2(0.5, 0.5),
+    uRippleStartTime: 0.0,
+    uMaxRadius: 0.9,
+    uStrength: 0.045,
   },
   `
     varying vec2 vUv;
@@ -24,18 +25,27 @@ const RippleShaderMaterial = shaderMaterial(
     uniform float uTime;
     uniform sampler2D uVideoTexture;
     uniform vec2 uMouse;
-    uniform float uDropRadius;
+    uniform float uRippleStartTime;
+    uniform float uMaxRadius;
     uniform float uStrength;
     varying vec2 vUv;
 
     void main() {
       vec2 uv = vUv;
       float dist = distance(uv, uMouse);
+      float elapsed = uTime - uRippleStartTime;
+      float currentRadius = elapsed * 0.7;
       float wave = 0.0;
-      if (dist < uDropRadius) {
-        float factor = smoothstep(uDropRadius, 0.0, dist);
-        wave = sin(dist * 60.0 - uTime * 10.0) * uStrength * factor;
+
+      if (dist < currentRadius && currentRadius < uMaxRadius) {
+        float bandWidth = 0.25;
+        if (dist > currentRadius - bandWidth) {
+          float factor = smoothstep(currentRadius, currentRadius - bandWidth, dist);
+          float fade = max(0.0, 1.0 - (currentRadius / uMaxRadius));
+          wave = sin((dist - currentRadius) * 45.0) * uStrength * factor * fade;
+        }
       }
+
       vec2 distortedUV = uv + wave;
       vec4 color = texture2D(uVideoTexture, distortedUV);
       gl_FragColor = color;
@@ -43,9 +53,9 @@ const RippleShaderMaterial = shaderMaterial(
   `
 );
 
-extend({ RippleShaderMaterial });
+extend({ ExpandingRippleShader });
 
-function RippleCanvasPlane() {
+function ExpandingRipplePlane() {
   const materialRef = useRef<any>(null);
   const videoTexture = useVideoTexture('/videos/hero-video.mp4', {
     muted: true,
@@ -64,6 +74,7 @@ function RippleCanvasPlane() {
           e.clientX / window.innerWidth,
           1.0 - e.clientY / window.innerHeight
         );
+        materialRef.current.uRippleStartTime = performance.now() * 0.001;
       }
     };
     window.addEventListener('pointermove', handlePointerMove);
@@ -79,7 +90,7 @@ function RippleCanvasPlane() {
   return (
     <mesh>
       <planeGeometry args={[16, 9, 1, 1]} />
-      <rippleShaderMaterial ref={materialRef} uVideoTexture={videoTexture} />
+      <expandingRippleShader ref={materialRef} uVideoTexture={videoTexture} />
     </mesh>
   );
 }
@@ -95,7 +106,7 @@ export default function Hero() {
           style={{ width: '100%', height: '100%' }}
         >
           <color attach="background" args={['#0a2540']} />
-          <RippleCanvasPlane />
+          <ExpandingRipplePlane />
         </Canvas>
       </div>
       <div style={{
