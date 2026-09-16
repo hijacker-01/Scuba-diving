@@ -4,7 +4,6 @@ import { useRef, useEffect } from 'react';
 import { Canvas, extend, useFrame } from '@react-three/fiber';
 import { useVideoTexture, shaderMaterial } from '@react-three/drei';
 import * as THREE from 'three';
-import RippleCanvas from '@/components/RippleCanvas';
 
 const RippleShaderMaterial = shaderMaterial(
   {
@@ -119,7 +118,6 @@ export default function Hero() {
         </div>
       </div>
       <div className="hero-image" />
-      <RippleCanvas />
     </section>
   );
 }
